@@ -16,10 +16,10 @@ namespace Sat.Recruitment.Api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public partial class UsersController : ControllerBase
+    public class UsersController : ControllerBase
     {
-        private UsersRepository _usersRepository;
-        public UsersController(UsersRepository usersRepository)
+        private IUsersRepository _usersRepository;
+        public UsersController(IUsersRepository usersRepository)
         {
             _usersRepository = usersRepository;
         }
@@ -27,16 +27,20 @@ namespace Sat.Recruitment.Api.Controllers
         [HttpPost]
         public async Task<ActionResult> Post(User user)
         {
-            var _users = _usersRepository.GetAllUsers();
-            var isDuplicated = _users.FirstOrDefault(u => u.Email == user.Email) != null;
+            var isDuplicated = _usersRepository.UserExists(user.Email);
 
             if (isDuplicated)
             {
-                Debug.WriteLine("User Created");
-                return StatusCode(409, "The user is duplicated");
+                return StatusCode(409, "The user already exists");
             }
-            
-            _usersRepository.AddUser(user);
+            try
+            {
+                await _usersRepository.AddUserAsync(user);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Error while performing server side tasks.");
+            }
             //Created Result 201
             return new ObjectResult(user) { StatusCode = 201 };
         }

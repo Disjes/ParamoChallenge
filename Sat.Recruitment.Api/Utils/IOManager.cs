@@ -5,9 +5,9 @@ namespace Sat.Recruitment.Api.Utils
 {
     public static class IOManager
     {
+        private static readonly string path = Directory.GetCurrentDirectory() + "/Files/Users.txt";
         public static StreamReader CreateStreamReader()
         {
-            var path = Directory.GetCurrentDirectory() + "/Files/Users.txt";
             FileStream fileStream = new FileStream(path, FileMode.Open);
             StreamReader reader = new StreamReader(fileStream);
             return reader;
@@ -15,7 +15,6 @@ namespace Sat.Recruitment.Api.Utils
         
         public static StreamWriter CreateStreamWriter()
         {
-            var path = Directory.GetCurrentDirectory() + "/Files/Users.txt";
             FileStream fileStream = new FileStream(path, FileMode.Open);
             StreamWriter writer = new StreamWriter(fileStream);
             return writer;

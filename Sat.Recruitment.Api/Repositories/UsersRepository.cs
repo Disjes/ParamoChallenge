@@ -1,20 +1,21 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Sat.Recruitment.Api.Models;
 using Sat.Recruitment.Api.Utils;
 
 namespace Sat.Recruitment.Api.Repositories
 {
-    public class UsersRepository
+    public class UsersRepository : IUsersRepository
     {
-        
+
         public UsersRepository()
         {
-            
+
         }
-        
+
         public bool UserExists(string email)
         {
             var reader = IOManager.CreateStreamReader();
@@ -41,11 +42,11 @@ namespace Sat.Recruitment.Api.Repositories
             }
             catch
             {
-                
+
             }
             return false;
         }
-        
+
         public List<User> GetAllUsers()
         {
             var _users = new List<User>();
@@ -71,18 +72,19 @@ namespace Sat.Recruitment.Api.Repositories
             }
             catch
             {
-                
+
             }
 
             return _users;
         }
 
-        public void AddUser(User user)
+        public async Task AddUserAsync(User user)
         {
             var writer = IOManager.CreateStreamWriter();
-            var fields = typeof(User).GetFields();
+            var fields = typeof(User).GetProperties();
             var userString = String.Join(",", fields.Select(f => f.GetValue(user)));
-            writer.WriteLine(userString);
+            await writer.WriteLineAsync(userString);
+            writer.Close();
         }
     }
 }

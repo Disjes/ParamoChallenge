@@ -8,14 +8,19 @@ namespace Sat.Recruitment.Api.Models
         
         [Required(ErrorMessage = "The name is required")]
         public string Name { get; set; }
+        private string _Email;
         [Required(ErrorMessage = "The email is required")]
         public string Email {
-            get => Email;
+            get => _Email;
             set
             {
-                //Normalize email
-                var aux = Email.Split(new char[] { '@' }, StringSplitOptions.RemoveEmptyEntries);
-                Email = string.Join("@", new string[] { aux[0], aux[1].ToLower() });
+                _Email = value;
+                if(value != null)
+                {
+                    //Normalize email
+                    var aux = value.Split(new char[] { '@' }, StringSplitOptions.RemoveEmptyEntries);
+                    _Email = string.Join("@", new string[] { aux[0], aux[1].ToLower() });
+                }
             } 
         }
         [Required(ErrorMessage = "The address is required")]
@@ -23,10 +28,10 @@ namespace Sat.Recruitment.Api.Models
         [Required(ErrorMessage = "The phone is required")]
         public string Phone { get; set; }
         public string UserType { get; set; }
-
+        private decimal _Money;
         public decimal Money
         {
-            get => this.Money;
+            get => this._Money;
             set
             {
                 const int limit = 100;
@@ -37,35 +42,35 @@ namespace Sat.Recruitment.Api.Models
 
                 if (UserType == "Normal")
                 {
-                    if (Money > limit)
+                    if (value > limit)
                     {
                         //If new user is normal and has more than USD100
-                        var gif = Money * normalUserAboveLimitPercentage;
-                        Money = Money + gif;
+                        var gif = value * normalUserAboveLimitPercentage;
+                        _Money = value + gif;
                     }
-                    if (Money < limit)
+                    if (value < limit)
                     {
-                        if (Money > 10)
+                        if (value > 10)
                         {
-                            var gif = Money * normalUserBelowLimitPercentage;
-                            Money = Money + gif;
+                            var gif = value * normalUserBelowLimitPercentage;
+                            _Money = value + gif;
                         }
                     }
                 }
                 if (UserType == "SuperUser")
                 {
-                    if (Money > limit)
+                    if (value > limit)
                     {
-                        var gif = Money * superUserPercentage;
-                        Money = Money + gif;
+                        var gif = value * superUserPercentage;
+                        _Money = value + gif;
                     }
                 }
                 if (UserType == "Premium")
                 {
-                    if (Money > limit)
+                    if (value > limit)
                     {
-                        var gif = Money * premiumPercentage;
-                        Money = Money + gif;
+                        var gif = value * premiumPercentage;
+                        _Money = value + gif;
                     }
                 }
             }
