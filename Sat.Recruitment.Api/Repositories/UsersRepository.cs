@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
+using Sat.Recruitment.Api.Factories;
 using Sat.Recruitment.Api.Models;
 using Sat.Recruitment.Api.Utils;
 
@@ -10,81 +12,49 @@ namespace Sat.Recruitment.Api.Repositories
 {
     public class UsersRepository : IUsersRepository
     {
-
+        private static readonly string path = $"{Directory.GetCurrentDirectory()}/Files/Users.txt";
         public UsersRepository()
         {
-
+            
         }
-
-        public bool UserExists(string email)
+        
+        public async Task<bool> UserExists(string email)
         {
-            var reader = IOManager.CreateStreamReader();
-            try
+            using var reader = File.OpenText(path);
+            while (reader.Peek() >= 0)
             {
-                while (reader.Peek() >= 0)
+                var line = await reader.ReadLineAsync();
+                var lineArray = line.Split(',');
+                if (string.IsNullOrEmpty(line))
                 {
-                    var line = reader.ReadLineAsync().Result;
-                    var userRecord = new User
-                    {
-                        Name = line.Split(',')[0],
-                        Email = line.Split(',')[1],
-                        Phone = line.Split(',')[2],
-                        Address = line.Split(',')[3],
-                        UserType = line.Split(',')[4],
-                        Money = decimal.Parse(line.Split(',')[5]),
-                    };
-                    if (userRecord.Email == email)
-                    {
-                        return true;
-                    }
+                    break;
                 }
-                reader.Close();
+                var userRecord = new User
+                {
+                    Name = lineArray[0],
+                    Email = lineArray[1],
+                    Phone = lineArray[2],
+                    Address = lineArray[3],
+                    UserType = lineArray[4],
+                    Money = decimal.Parse(line.Split(',')[5]),
+                };
+                if (userRecord.Email == email)
+                {
+                    return true;
+                }
             }
-            catch
-            {
 
-            }
             return false;
-        }
-
-        public List<User> GetAllUsers()
-        {
-            var _users = new List<User>();
-            var reader = IOManager.CreateStreamReader();
-            try
-            {
-                while (reader.Peek() >= 0)
-                {
-                    var line = reader.ReadLineAsync().Result;
-                    var userRecord = new User
-                    {
-                        Name = line.Split(',')[0],
-                        Email = line.Split(',')[1],
-                        Phone = line.Split(',')[2],
-                        Address = line.Split(',')[3],
-                        UserType = line.Split(',')[4],
-                        Money = decimal.Parse(line.Split(',')[5]),
-                    };
-                    _users.Add(userRecord);
-                }
-
-                reader.Close();
-            }
-            catch
-            {
-
-            }
-
-            return _users;
         }
 
         public async Task AddUserAsync(User user)
         {
-            var writer = IOManager.CreateStreamWriter();
+            await using var writer = File.AppendText(path);
+            var concreteUser = UserFactory.Create(name: user.Name, email: user.Email,
+                address: user.Address, phone: user.Phone, userType: user.UserType, money: user.Money);
             var fields = typeof(User).GetProperties();
-            var userString = String.Join(",", fields.Select(f => f.GetValue(user)));
-            await writer.WriteLineAsync(userString);
-            writer.Close();
+            var userString = String.Join(",", fields.Select(f => f.GetValue(concreteUser)));
+            await writer.WriteLineAsync($"{Environment.NewLine}{userString}");
         }
     }
 }

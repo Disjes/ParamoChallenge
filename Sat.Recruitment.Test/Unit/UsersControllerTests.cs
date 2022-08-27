@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Testing;
 using NSubstitute;
 using Sat.Recruitment.Api.Controllers;
 using Sat.Recruitment.Api.Models;

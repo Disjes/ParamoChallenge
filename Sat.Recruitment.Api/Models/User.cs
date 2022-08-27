@@ -15,7 +15,7 @@ namespace Sat.Recruitment.Api.Models
             set
             {
                 _Email = value;
-                if(value != null)
+                if(value != null && new EmailAddressAttribute().IsValid(value))
                 {
                     //Normalize email
                     var aux = value.Split(new char[] { '@' }, StringSplitOptions.RemoveEmptyEntries);
@@ -28,52 +28,22 @@ namespace Sat.Recruitment.Api.Models
         [Required(ErrorMessage = "The phone is required")]
         public string Phone { get; set; }
         public string UserType { get; set; }
-        private decimal _Money;
+        private decimal _money;
         public decimal Money
         {
-            get => this._Money;
-            set
-            {
-                const int limit = 100;
-                const decimal normalUserBelowLimitPercentage = (decimal)0.8;
-                const decimal normalUserAboveLimitPercentage = (decimal)0.12;
-                const decimal superUserPercentage = (decimal)0.20;
-                const decimal premiumPercentage = 2;
+            get => _money;
+            set => SetMoney(value);
+        }
 
-                if (UserType == "Normal")
-                {
-                    if (value > limit)
-                    {
-                        //If new user is normal and has more than USD100
-                        var gif = value * normalUserAboveLimitPercentage;
-                        _Money = value + gif;
-                    }
-                    if (value < limit)
-                    {
-                        if (value > 10)
-                        {
-                            var gif = value * normalUserBelowLimitPercentage;
-                            _Money = value + gif;
-                        }
-                    }
-                }
-                if (UserType == "SuperUser")
-                {
-                    if (value > limit)
-                    {
-                        var gif = value * superUserPercentage;
-                        _Money = value + gif;
-                    }
-                }
-                if (UserType == "Premium")
-                {
-                    if (value > limit)
-                    {
-                        var gif = value * premiumPercentage;
-                        _Money = value + gif;
-                    }
-                }
-            }
+        protected virtual void SetMoney(decimal money)
+        {
+            _money = money;
+        }
+
+        internal void ApplyPercentage(decimal money, decimal percentage)
+        {
+            var gif = money * percentage;
+            _money = money + gif;
         }
     }
 }

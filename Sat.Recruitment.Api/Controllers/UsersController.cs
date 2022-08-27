@@ -27,8 +27,15 @@ namespace Sat.Recruitment.Api.Controllers
         [HttpPost]
         public async Task<ActionResult> Post(User user)
         {
-            var isDuplicated = _usersRepository.UserExists(user.Email);
-
+            var isDuplicated = false;
+            try
+            {
+                isDuplicated = await _usersRepository.UserExists(user.Email);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Error while performing server side tasks.");
+            }
             if (isDuplicated)
             {
                 return StatusCode(409, "The user already exists");

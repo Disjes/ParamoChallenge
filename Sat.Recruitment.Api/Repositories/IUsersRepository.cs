@@ -7,7 +7,6 @@ namespace Sat.Recruitment.Api.Repositories
     public interface IUsersRepository
     {
         Task AddUserAsync(User user);
-        List<User> GetAllUsers();
-        bool UserExists(string email);
+        Task<bool> UserExists(string email);
     }
 }

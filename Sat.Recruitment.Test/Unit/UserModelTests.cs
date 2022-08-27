@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
+using Sat.Recruitment.Api.Factories;
 using Xunit;
 
 namespace Sat.Recruitment.Test.Unit
@@ -46,7 +47,7 @@ namespace Sat.Recruitment.Test.Unit
         }
 
         [Fact]
-        public void ModelBindingReturnNoErrorsWhenPassingValidValues()
+        public void ModelBindingReturnsNoErrorsWhenPassingValidValues()
         {
             //Arrange
             var user = new User()
